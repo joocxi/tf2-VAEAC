@@ -3,7 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
-from tensorflow.keras import layers
+from nets import proposal_network, prior_network, generative_network
 
 
 class VAEAC(tf.keras.Model):
