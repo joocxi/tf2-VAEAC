@@ -1,3 +1,5 @@
 .env
 .idea
 *.pyc
+.DS_Store
+data

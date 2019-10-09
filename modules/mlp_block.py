@@ -3,7 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
-from tensorflow.keras.layers import Layer, Conv2d, LeakyReLU, BatchNormalization
+from tensorflow.keras.layers import Layer, Conv2D, LeakyReLU, BatchNormalization
 
 
 class SkipConnection(Layer):

@@ -3,20 +3,25 @@ from __future__ import division
 from __future__ import print_function
 
 from absl import app, flags, logging
-from absl.flags import FLAGS
+from absl.flags import FLAGS as config
 
-flags.DEFINE_string("mode", "train", "train/inpaint/impute")
+from dataset import download_dataset
+
+flags.DEFINE_string("mode", "train", "prepare/train/inpaint/impute")
 flags.DEFINE_string("checkpoint_dir", "checkpoints", "")
-flags.DEFINE_string("epochs", 20, "")
+flags.DEFINE_integer("epochs", 20, "")
 flags.DEFINE_string("dataset", "celeb_a", "")
+flags.DEFINE_string("data_dir", "data", "")
 
 
-def main():
-  if FLAGS.mode == "train":
+def main(_):
+  if config.mode == "prepare":
+    download_dataset(config)
+  elif config.mode == "train":
     pass
-  elif FLAGS.mode == "inpaint":
+  elif config.mode == "inpaint":
     pass
-  elif FLAGS.mode == "impute":
+  elif config.mode == "impute":
     pass
 
 

@@ -36,10 +36,12 @@ generative_network = Sequential(
   ResidualBlocks(16, 8, 4),
   Conv2D(8, 1),
   UpSampling2D((2, 2)),
+
   MemoryLayer('#3', True),
   Conv2D(8, 1),
   ResidualBlocks(8, 8, 4),
   UpSampling2D((2, 2)),
+
   MemoryLayer('#2', True),
 
   Conv2D(8, 1),
