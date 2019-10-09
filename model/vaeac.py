@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import tensorflow as tf
 from nets import proposal_network, prior_network, generative_network
+from utils import MaskGenerator
 
 
 class VAEAC(tf.keras.Model):

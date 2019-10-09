@@ -3,11 +3,11 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
-from tensorflow.keras.layers import Sequential, Conv2D, UpSampling2D
+from tensorflow.keras.layers import Conv2D, UpSampling2D
 from modules import ResidualBlocks, MemoryLayer, MLPBlocks
 
 
-generative_network = Sequential(
+generative_network = tf.keras.Sequential(
   Conv2D(256, 1),
   MLPBlocks(256, 4),
   Conv2D(128, 1),
