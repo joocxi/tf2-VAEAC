@@ -2,23 +2,36 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from absl import app, flags, logging
+from absl import app, flags
 from absl.flags import FLAGS as config
 
-from dataset import download_dataset
+from utils import download_dataset, train
 
 flags.DEFINE_string("mode", "train", "prepare/train/inpaint/impute")
 flags.DEFINE_string("checkpoint_dir", "checkpoints", "")
-flags.DEFINE_integer("epochs", 20, "")
+flags.DEFINE_integer("epochs", 40, "")
 flags.DEFINE_string("dataset", "celeb_a", "")
 flags.DEFINE_string("data_dir", "data", "")
+flags.DEFINE_integer("train_steps", 3, "")
+flags.DEFINE_integer("viz_steps", 1, "")
+flags.DEFINE_bool("delete_existing", True, "")
+flags.DEFINE_integer("image_size", 128, "")
+flags.DEFINE_integer("scale_factor", 128 ** 2, "")
+
+# vaeac config
+flags.DEFINE_integer("batch_size", 32, "")
+flags.DEFINE_float("sigma_mu", 1e4, "")
+flags.DEFINE_float("sigma_sigma", 1e-4, "")
 
 
 def main(_):
   if config.mode == "prepare":
     download_dataset(config)
   elif config.mode == "train":
-    pass
+    train(config)
+  elif config.mode == "debug":
+    config.epochs = 5
+    train(config, debug=True)
   elif config.mode == "inpaint":
     pass
   elif config.mode == "impute":

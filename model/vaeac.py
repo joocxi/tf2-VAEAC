@@ -93,7 +93,7 @@ class VAEAC(tf.keras.Model):
       name="priors")
 
     # (batch_size, )
-    loss = tf.reduce_sum(
+    likelihood = tf.reduce_sum(
       tf.reshape(
         tf.multiply(generative_distribution.log_prob(inputs), masks),
         (self.config.batch_size, -1)), -1)
@@ -104,12 +104,11 @@ class VAEAC(tf.keras.Model):
         tfd.kl_divergence(proposal_distribution, prior_distribution),
         (self.config.batch_size, -1)), -1)
 
-    return loss - divergence + regularizer
+    return tf.reduce_mean(divergence - likelihood - regularizer)
 
   def prior_regularizer(self, prior):
 
     # (batch_size, -1)
-
     mu = tf.reshape(prior.mean(), (self.config.batch_size, -1))
     sigma = tf.reshape(prior.scale, (self.config.batch_size, -1))
 
@@ -119,7 +118,10 @@ class VAEAC(tf.keras.Model):
     return mu_regularizer + sigma_regularizer
 
   @tf.function
-  def compute_apply_gradients(self, inputs):
-    with tf.GradientTape() as tape:
-      masks = self.generate_mask(inputs)
-      loss = self.compute_loss(inputs, masks)
+  def compute_apply_gradients(self, optimizer, inputs, masks):
+      with tf.GradientTape() as tape:
+        loss = self.compute_loss(inputs, masks)
+        loss = loss / self.config.scale_factor
+
+      gradients = tape.gradient(loss, self.trainable_variables)
+      optimizer.apply_gradients(zip(gradients, self.trainable_variables))
