@@ -8,7 +8,7 @@ from tensorflow.keras.layers import Conv2D, AveragePooling2D
 from modules import ResidualBlocks, MemoryLayer, MLPBlocks
 
 
-prior_network = tf.keras.Sequential(
+prior_network = tf.keras.Sequential([
   MemoryLayer('#0'),
 
   Conv2D(8, 1),
@@ -47,4 +47,4 @@ prior_network = tf.keras.Sequential(
   AveragePooling2D(2),
   Conv2D(512, 1),
   MLPBlocks(512, 4)
-)
+])

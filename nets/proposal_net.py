@@ -8,7 +8,7 @@ from tensorflow.keras.layers import Conv2D, AveragePooling2D
 from modules import ResidualBlocks, MLPBlocks
 
 
-proposal_network = tf.keras.Sequential(
+proposal_network = tf.keras.Sequential([
   Conv2D(8, 1),
   ResidualBlocks(8, 8, 4),
   AveragePooling2D(2),
@@ -31,4 +31,4 @@ proposal_network = tf.keras.Sequential(
   AveragePooling2D(2),
   Conv2D(512, 1),
   MLPBlocks(512, 4),
-)
+])

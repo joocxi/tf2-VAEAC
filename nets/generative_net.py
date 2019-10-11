@@ -7,7 +7,7 @@ from tensorflow.keras.layers import Conv2D, UpSampling2D
 from modules import ResidualBlocks, MemoryLayer, MLPBlocks
 
 
-generative_network = tf.keras.Sequential(
+generative_network = tf.keras.Sequential([
   Conv2D(256, 1),
   MLPBlocks(256, 4),
   Conv2D(128, 1),
@@ -23,7 +23,7 @@ generative_network = tf.keras.Sequential(
   Conv2D(64, 1),
   ResidualBlocks(64, 32, 4),
   Conv2D(32, 1),
-  UpSampling2D(sile=(2, 2)),
+  UpSampling2D((2, 2)),
 
   MemoryLayer('#5', True),
   Conv2D(32, 1),
@@ -55,5 +55,5 @@ generative_network = tf.keras.Sequential(
 
   Conv2D(8, 1),
   ResidualBlocks(8, 8, 4),
-  Conv2D(6, 1),
-)
+  Conv2D(6, 1)
+])

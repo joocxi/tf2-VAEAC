@@ -7,20 +7,20 @@ from tensorflow.keras.layers import Layer, Conv2D, LeakyReLU, BatchNormalization
 
 
 class SkipConnection(Layer):
-  def __init__(self, *args):
-    super(SkipConnection).__init__()
-    self.inner_net = tf.keras.Sequential(*args)
+  def __init__(self, layers):
+    super(SkipConnection, self).__init__()
+    self.inner_net = tf.keras.Sequential(layers)
 
   def call(self, input_tensor):
     return input_tensor + self.inner_net(input_tensor)
 
 
 def mlp_block(dim):
-  return SkipConnection(
+  return SkipConnection([
     BatchNormalization(),
     LeakyReLU(),
     Conv2D(dim, 1)
-  )
+  ])
 
 
 def sequence_mlp_block(dim, n):

@@ -11,11 +11,11 @@ class MemoryLayer(Layer):
   def __init__(self, store_id, output=False, add=False):
     super(MemoryLayer, self).__init__()
     self.store_id = store_id
-    self.output = output
+    self.out = output
     self.add = add
 
   def call(self, input_tensor):
-    if not self.output:
+    if not self.out:
       self.storage[self.store_id] = input_tensor
       return input_tensor
     else:
