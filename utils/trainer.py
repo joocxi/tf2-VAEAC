@@ -1,4 +1,7 @@
+import os
+
 from time import time
+from datetime import datetime
 
 import tensorflow as tf
 from absl import logging
@@ -24,21 +27,46 @@ def train(config, debug=False):
 
   optimizer = tf.optimizers.Adam(learning_rate=2e-4)
 
+  checkpoint = tf.train.Checkpoint(optimizer=optimizer, net=vaeac)
+  manager = tf.train.CheckpointManager(checkpoint, config.checkpoint_dir, max_to_keep=None)
+
+  checkpoint.restore(manager.latest_checkpoint)
+
+  if manager.latest_checkpoint:
+    print("Restored from {}".format(manager.latest_checkpoint))
+  else:
+    print("Initializing from scratch.")
+
+  current_time = datetime.now().strftime("%Y%m%d-%H%M%S")
+
+  summary_writer = tf.summary.create_file_writer(os.path.join(config.summary, current_time))
+
+  train_loss = tf.metrics.Mean('train_loss', dtype=tf.float32)
+  val_loss = tf.metrics.Mean('val_loss', dtype=tf.float32)
+
   start_time = time()
   for epoch in range(1, config.epochs + 1):
     for images in train_dataset:
       masks = vaeac.generate_mask(images)
-      vaeac.compute_apply_gradients(optimizer, images, masks)
+      vaeac.compute_apply_gradients(optimizer, images, masks, train_loss)
 
-    if epoch % 1 == 0:
-      loss = tf.metrics.Mean()
-      for val_images in val_dataset:
-        val_masks = vaeac.generate_mask(val_images)
-        loss(vaeac.compute_loss(val_images, val_masks))
+    with summary_writer.as_default():
+      tf.summary.scalar('train_loss', train_loss.result(), step=epoch)
 
-      elbo = -loss.result()
+    for val_images in val_dataset:
+      val_masks = vaeac.generate_mask(val_images)
+      val_loss(vaeac.compute_loss(val_images, val_masks))
 
-      print('Epoch: {}, Test set ELBO: {}, '
-            'time elapse for current epoch {}'.format(epoch,
-                                                      elbo,
-                                                      time() - start_time))
+    with summary_writer.as_default():
+      tf.summary.scalar('val_loss', val_loss.result(), step=epoch)
+
+    train_elbo = - train_loss.result()
+    val_elbo = - val_loss.result()
+
+    save_path = manager.save()
+    print("Saved checkpoint for epoch {}: {}".format(epoch, save_path))
+    print('Epoch {}, Train ELBO: {}, Val ELBO: {}, Time elapsed: {} minutes'.\
+          format(epoch, train_elbo, val_elbo, round((time() - start_time) / 60, 2)))
+
+    train_loss.reset_states()
+    val_loss.reset_states()
