@@ -29,7 +29,7 @@ def main(_):
   elif config.mode == "train":
     train(config)
   elif config.mode == "debug":
-    config.epochs = 5
+    config.epochs = 2
     train(config, debug=True)
   elif config.mode == "inpaint":
     pass

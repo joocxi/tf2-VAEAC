@@ -18,7 +18,7 @@ class VAEAC(tf.keras.Model):
     self.prior_net = prior_network
     self.proposal_net = proposal_network
     self.generative_net = generative_network
-    self.mask_generator = MaskGenerator(52, 33, 116, 71)
+    self.mask_generator = MaskGenerator()
     self.config = config
 
   def generate_mask(self, inputs):
