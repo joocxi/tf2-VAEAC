@@ -5,7 +5,7 @@ from __future__ import print_function
 from absl import app, flags
 from absl.flags import FLAGS as config
 
-from utils import download_dataset, train
+from utils import download_dataset, train, inpaint
 
 flags.DEFINE_string("mode", "train", "prepare/train/inpaint/impute")
 flags.DEFINE_string("checkpoint_dir", "checkpoints", "")
@@ -22,6 +22,10 @@ flags.DEFINE_integer("batch_size", 32, "")
 flags.DEFINE_float("sigma_mu", 1e4, "")
 flags.DEFINE_float("sigma_sigma", 1e-4, "")
 
+# inpainting config
+flags.DEFINE_integer("num_samples", 5, "")
+flags.DEFINE_string("inpaint_dir", "out", "")
+
 
 def main(_):
   if config.mode == "prepare":
@@ -32,7 +36,7 @@ def main(_):
     config.epochs = 2
     train(config, debug=True)
   elif config.mode == "inpaint":
-    pass
+    inpaint(config)
   elif config.mode == "impute":
     pass
 

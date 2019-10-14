@@ -19,6 +19,13 @@ def transform(images):
   return  images
 
 
+def invert_transform(images):
+  images = images * 0.5 + 0.5
+  images = np.clip(images, 0, 1)
+  images = images * 255
+  return images.astype("uint8")
+
+
 def build_datasets(config):
   train_dataset = tfds.load(name=config.dataset,
                             split="train",

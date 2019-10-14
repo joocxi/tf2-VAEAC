@@ -126,3 +126,26 @@ class VAEAC(tf.keras.Model):
 
       gradients = tape.gradient(loss, self.trainable_variables)
       optimizer.apply_gradients(zip(gradients, self.trainable_variables))
+
+  def generate_samples_params(self, inputs, masks, sample=1):
+    # (batch_size, width, height, channels)
+    observed_inputs = self.make_observed_inputs(inputs, masks)
+    # (batch_size, width, height, 2*channels)
+    observed_inputs_with_masks = tf.concat([observed_inputs, masks], axis=-1)
+
+    prior_params = self.prior_net(observed_inputs_with_masks)
+
+    prior_distribution = tfd.Normal(
+      loc=prior_params[..., :256],
+      scale=tf.clip_by_value(
+        tf.nn.softplus(prior_params[..., 256:]),
+        1e-3,
+        tf.float32.max),
+      name="priors")
+
+    samples_params = []
+    for i in range(sample):
+      latent = prior_distribution.sample()
+      sample_params = self.generative_net(latent)
+      samples_params.append(sample_params)
+    return tf.stack(samples_params, axis=1)
