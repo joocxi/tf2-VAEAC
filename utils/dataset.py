@@ -15,7 +15,7 @@ def transform(images):
   images = images["image"]
   images = tf.image.resize_with_crop_or_pad(images, 128, 128)
   images = tf.cast(images, tf.float32)
-  images = (images - 0.5) / 0.5
+  images = (images / 255 - 0.5) / 0.5
   return  images
 
 
@@ -47,3 +47,11 @@ def build_fake_datasets(config):
       random_sample).batch(config.batch_size)
 
   return train_dataset, val_dataset
+
+
+def build_test_dataset(config):
+  test_dataset = tfds.load(name=config.dataset,
+                           split="test",
+                           data_dir=config.data_dir)
+  test_dataset = test_dataset.map(lambda x: transform(x)).batch(config.batch_size)
+  return test_dataset
