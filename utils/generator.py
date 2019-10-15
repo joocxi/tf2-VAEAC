@@ -60,8 +60,7 @@ class RectangleGenerator:
       while not (self.min_ratio * image_area <= mask_area <= self.max_ratio * image_area):
         x1, y1, x2, y2 = self.gen_coordinates(width, height)
         mask_area = (x2 - x1 + 1) * (y2 - y1 + 1)
-      mask[i, :, x1: x2 + 1, y1: y2 + 1] = 1
-
+      mask[i, x1: x2 + 1, y1: y2 + 1, :] = 1
     return mask
 
 
