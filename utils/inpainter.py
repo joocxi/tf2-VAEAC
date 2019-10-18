@@ -6,7 +6,7 @@ import os
 
 import tensorflow as tf
 
-from PIL import Image
+from matplotlib import pyplot as plt
 
 from model import VAEAC
 from utils.dataset import build_test_dataset, invert_transform
@@ -24,12 +24,17 @@ def inpaint(config):
   checkpoint.restore(tf.train.latest_checkpoint(config.checkpoint_dir))
 
   cnt = 0
+  rows = config.batch_size
+  cols = config.num_samples + 2
+
   for images in test_dataset:
     masks = vaeac.generate_mask(images)
     # (batch_size, num_samples, width, height, 2*latent_dim)
     samples_params = vaeac.generate_samples_params(images, masks, sample=config.num_samples)
 
-    for image, mask, sample_params in zip(images, masks, samples_params):
+    fig = plt.figure()
+
+    for r, (image, mask, sample_params) in enumerate(zip(images, masks, samples_params)):
       d = sample_params.shape[-1]
       # (num_samples, width, height, latent_dim)
       samples = sample_params[..., :d // 2]
@@ -45,16 +50,22 @@ def inpaint(config):
 
         mask_generated = invert_transform(mask_generated)
 
-        im = Image.fromarray(mask_generated)
-        im.save(os.path.join(config.inpaint_dir, "mask{}_inpaint{}.jpg".format(cnt, i)))
+        sub_plt = fig.add_subplot(rows, cols, r * cols + i + 2)
+        sub_plt.imshow(mask_generated)
+        sub_plt.axis('off')
 
       image_with_mask = invert_transform(image_with_mask)
       image = invert_transform(image)
 
-      im = Image.fromarray(image )
-      im.save(os.path.join(config.inpaint_dir, "gold{}.jpg".format(cnt)))
+      sub_plt = fig.add_subplot(rows, cols, r * cols + 1)
+      sub_plt.imshow(image_with_mask)
+      sub_plt.axis('off')
 
-      im = Image.fromarray(image_with_mask)
-      im.save(os.path.join(config.inpaint_dir, "mask{}.jpg".format(cnt)))
+      sub_plt = fig.add_subplot(rows, cols, r * cols + cols)
+      sub_plt.imshow(image)
+      sub_plt.axis('off')
 
-      cnt += 1
+    plt.axis('off')
+    plt.savefig(os.path.join(config.inpaint_dir, "batch_{}.png".format(cnt)), transparent=True)
+    plt.close()
+    cnt += 1

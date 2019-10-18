@@ -36,6 +36,7 @@ def main(_):
     config.epochs = 2
     train(config, debug=True)
   elif config.mode == "inpaint":
+    config.batch_size = 5
     inpaint(config)
   elif config.mode == "impute":
     pass
